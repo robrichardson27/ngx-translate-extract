@@ -1,3 +1,4 @@
+//TODO: Expand interface to include id, description and meaning to JSON output
 export interface TranslationType {
 	[key: string]: string
 }

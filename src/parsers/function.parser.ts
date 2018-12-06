@@ -48,6 +48,7 @@ export class FunctionParser extends AbstractAstParser implements ParserInterface
 				}
 
 				const identifier = (callNode.getChildAt(0) as ts.Identifier).text;
+				console.log(identifier);
 				if (identifier !== this._functionIdentifier) {
 					return false;
 				}
