@@ -43,8 +43,6 @@ var TranslationCollection = (function () {
         return new TranslationCollection(values);
     };
     TranslationCollection.prototype.union = function (collection) {
-        console.log(collection.values);
-        console.log(this.values);
         return new TranslationCollection(this._mergeDeep({}, this.values, collection.values));
     };
     TranslationCollection.prototype.intersect = function (collection) {
@@ -93,14 +91,13 @@ var TranslationCollection = (function () {
         if (this._isObject(target) && this._isObject(source)) {
             for (var key in source) {
                 if (this._isObject(source[key])) {
+                    console.log('## TARGET KEY: ', target[key]);
                     if (!target[key]) {
                         Object.assign(target, (_a = {}, _a[key] = {}, _a));
                     }
                     this._mergeDeep(target[key], source[key]);
                 }
                 else {
-                    console.log('#################');
-                    console.log('{ [', key, ']: ', source[key], ' }');
                     Object.assign(target, (_b = {}, _b[key] = source[key], _b));
                 }
             }

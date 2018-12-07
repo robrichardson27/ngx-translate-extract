@@ -3,7 +3,10 @@ export interface TranslationType {
 	[key: string]: I18nDef | string
 }
 
+// TODO: add source and target to hold translated strings.
 export interface I18nDef {
+	source: string,
+	target: string,
 	value: string,
 	id: string,
 	meaning: string,
@@ -59,8 +62,8 @@ export class TranslationCollection {
 	}
 
 	public union(collection: TranslationCollection): TranslationCollection {
-		console.log(collection.values);
-		console.log(this.values);
+		//console.log(collection.values);
+		//console.log(this.values);
 		return new TranslationCollection(this._mergeDeep({}, this.values, collection.values));
 	}
 
@@ -126,13 +129,16 @@ export class TranslationCollection {
 		if (this._isObject(target) && this._isObject(source)) {
 			for (const key in source) {
 				if (this._isObject(source[key])) {
+					console.log('## TARGET KEY: ', target[key]);
+
 					if (!target[key]) {
+						//console.log('key: ', key, ' | source[key]: ', source[key], ' | target[key]: ', target[key]);
 						Object.assign(target, { [key]: {} });
 					}
 					this._mergeDeep(target[key], source[key]);
 				} else {
-					console.log('#################');
-					console.log('{ [', key, ']: ', source[key], ' }');
+					//console.log('key: ', key, ' | source[key]: ', source[key], ' | target[key]: ', target[key]);
+					// if (target[key] !== source[key])
 					Object.assign(target, { [key]: source[key] });
 				}
 			}
