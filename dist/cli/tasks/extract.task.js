@@ -29,6 +29,7 @@ var ExtractTask = (function () {
         }
         var collection = this._extract();
         this._out(chalk.green('Extracted %d strings\n'), collection.count());
+        console.log(collection);
         this._save(collection);
     };
     ExtractTask.prototype.setParsers = function (parsers) {
@@ -69,6 +70,8 @@ var ExtractTask = (function () {
             _this._out(chalk.bold('\nSaving: %s'), outputPath);
             if (fs.existsSync(outputPath) && !_this._options.replace) {
                 var existingCollection = _this._compiler.parse(fs.readFileSync(outputPath, 'utf-8'));
+                console.log('### EXISITING COLLECTION ###');
+                console.log(existingCollection);
                 if (!existingCollection.isEmpty()) {
                     processedCollection = processedCollection.union(existingCollection);
                     _this._out(chalk.dim('- merged with %d existing strings'), existingCollection.count());

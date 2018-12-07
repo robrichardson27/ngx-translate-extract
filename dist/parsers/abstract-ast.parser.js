@@ -19,6 +19,28 @@ var AbstractAstParser = (function () {
             case ts.SyntaxKind.ArrayLiteralExpression:
                 return firstArg.elements
                     .map(function (element) { return element.text; });
+            case ts.SyntaxKind.ObjectLiteralExpression:
+                var i18nDef_1 = {};
+                firstArg.forEachChild(function (node) {
+                    var key = node.getChildAt(0).text;
+                    var value = node.getChildAt(2).text;
+                    if (key === 'id') {
+                        i18nDef_1.id = value;
+                    }
+                    else if (key === 'value') {
+                        i18nDef_1.value = value;
+                    }
+                    else if (key === 'meaning') {
+                        i18nDef_1.meaning = value;
+                    }
+                    else if (key === 'description') {
+                        i18nDef_1.description = value;
+                    }
+                });
+                if (!i18nDef_1.id) {
+                    console.log("WARNING: No id identified for " + firstArg);
+                }
+                return i18nDef_1;
             case ts.SyntaxKind.Identifier:
                 console.log('WARNING: We cannot extract variable values passed to TranslateService (yet)');
                 break;

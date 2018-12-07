@@ -38,6 +38,9 @@ var ServiceParser = (function (_super) {
                 if (keys && keys.length) {
                     collection = collection.addKeys(keys);
                 }
+                else if (keys && keys) {
+                    collection = collection.addObjectKeys(keys);
+                }
             });
         });
         return collection;
@@ -58,7 +61,7 @@ var ServiceParser = (function (_super) {
                 return false;
             }
             var className = parameterType.text;
-            if (className !== 'TranslateService') {
+            if (className !== 'NgxWrapperService') {
                 return false;
             }
             return true;
@@ -84,6 +87,9 @@ var ServiceParser = (function (_super) {
                 return false;
             }
             var propAccess = callNode.getChildAt(0).getChildAt(0);
+            if (!propAccess) {
+                return false;
+            }
             if (!propAccess || propAccess.kind !== ts.SyntaxKind.PropertyAccessExpression) {
                 return false;
             }
@@ -97,7 +103,7 @@ var ServiceParser = (function (_super) {
             if (!methodAccess || methodAccess.kind !== ts.SyntaxKind.PropertyAccessExpression) {
                 return false;
             }
-            if (!methodAccess.name || (methodAccess.name.text !== 'get' && methodAccess.name.text !== 'instant' && methodAccess.name.text !== 'stream')) {
+            if (!methodAccess.name || (methodAccess.name.text !== 'i18n')) {
                 return false;
             }
             return true;

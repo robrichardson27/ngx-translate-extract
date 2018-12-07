@@ -1,20 +1,29 @@
 export interface TranslationType {
-    [key: string]: string;
+    [key: string]: I18nDef | string;
+}
+export interface I18nDef {
+    value: string;
+    id: string;
+    meaning: string;
+    description: string;
 }
 export declare class TranslationCollection {
     values: TranslationType;
     constructor(values?: TranslationType);
-    add(key: string, val?: string): TranslationCollection;
+    add(key: string, val?: I18nDef): TranslationCollection;
     addKeys(keys: string[]): TranslationCollection;
+    addObjectKeys(obj: I18nDef): TranslationCollection;
     remove(key: string): TranslationCollection;
-    forEach(callback: (key?: string, val?: string) => void): TranslationCollection;
-    filter(callback: (key?: string, val?: string) => boolean): TranslationCollection;
+    forEach(callback: (key?: string, val?: I18nDef) => void): TranslationCollection;
+    filter(callback: (key?: string, val?: I18nDef) => boolean): TranslationCollection;
     union(collection: TranslationCollection): TranslationCollection;
     intersect(collection: TranslationCollection): TranslationCollection;
     has(key: string): boolean;
-    get(key: string): string;
+    get(key: string): I18nDef | string;
     keys(): string[];
     count(): number;
     isEmpty(): boolean;
     sort(compareFn?: (a: string, b: string) => number): TranslationCollection;
+    private _isObject(item);
+    private _mergeDeep(target, ...sources);
 }

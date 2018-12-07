@@ -48,7 +48,6 @@ var FunctionParser = (function (_super) {
                 return false;
             }
             var identifier = callNode.getChildAt(0).text;
-            console.log(identifier);
             if (identifier !== _this._functionIdentifier) {
                 return false;
             }

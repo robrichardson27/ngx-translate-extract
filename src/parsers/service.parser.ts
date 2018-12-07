@@ -1,7 +1,6 @@
 import { ParserInterface } from './parser.interface';
 import { AbstractAstParser } from './abstract-ast.parser';
-import { TranslationCollection } from '../utils/translation.collection';
-
+import { TranslationCollection, I18nDef } from '../utils/translation.collection';
 import * as ts from 'typescript';
 
 export class ServiceParser extends AbstractAstParser implements ParserInterface {
@@ -26,13 +25,15 @@ export class ServiceParser extends AbstractAstParser implements ParserInterface 
 
 			const callNodes = this._findCallNodes(classNode, propertyName);
 			callNodes.forEach(callNode => {
-				const keys: string[] = this._getCallArgStrings(callNode);
+				const keys: any = this._getCallArgStrings(callNode);
 				if (keys && keys.length) {
 					collection = collection.addKeys(keys);
+				} else if (keys && keys as I18nDef) {
+					// Add i18nDef object as Translation Type
+					collection = collection.addObjectKeys(keys);
 				}
 			});
 		});
-
 		return collection;
 	}
 
@@ -62,7 +63,7 @@ export class ServiceParser extends AbstractAstParser implements ParserInterface 
 				return false;
 			}
 			const className: string = parameterType.text;
-			if (className !== 'TranslateService') {
+			if (className !== 'NgxWrapperService') {
 				return false;
 			}
 
@@ -70,6 +71,7 @@ export class ServiceParser extends AbstractAstParser implements ParserInterface 
 		});
 
 		if (result) {
+			//console.log('## RESULT: ', result);
 			return (result.name as ts.Identifier).text;
 		}
 	}
@@ -92,7 +94,7 @@ export class ServiceParser extends AbstractAstParser implements ParserInterface 
 	}
 
 	/**
-	 * Find all calls to TranslateService methods
+	 * Find all calls to TranslateService or wrapper methods
 	 */
 	protected _findCallNodes(node: ts.Node, propertyIdentifier: string): ts.CallExpression[] {
 		let callNodes = this._findNodes(node, ts.SyntaxKind.CallExpression) as ts.CallExpression[];
@@ -102,8 +104,15 @@ export class ServiceParser extends AbstractAstParser implements ParserInterface 
 				if (callNode.arguments.length < 1) {
 					return false;
 				}
-
 				const propAccess = callNode.getChildAt(0).getChildAt(0) as ts.PropertyAccessExpression;
+
+				if (!propAccess) {
+					return false;
+				}
+				// console.log('## CALL NODE: ', callNode);
+				// console.log('## PROP ACCESS: ', propAccess);
+				// console.log('## PROP KIND: ', propAccess.kind);
+
 				if (!propAccess || propAccess.kind !== ts.SyntaxKind.PropertyAccessExpression) {
 					return false;
 				}
@@ -118,13 +127,13 @@ export class ServiceParser extends AbstractAstParser implements ParserInterface 
 				if (!methodAccess || methodAccess.kind !== ts.SyntaxKind.PropertyAccessExpression) {
 					return false;
 				}
-				if (!methodAccess.name || (methodAccess.name.text !== 'get' && methodAccess.name.text !== 'instant' && methodAccess.name.text !== 'stream')) {
+				if (!methodAccess.name || (methodAccess.name.text !== 'i18n')) {
 					return false;
 				}
 
 				return true;
 			});
-
+		// console.log('## RETURN CALL NODES: ', 	callNodes);
 		return callNodes;
 	}
 

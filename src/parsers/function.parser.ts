@@ -22,7 +22,7 @@ export class FunctionParser extends AbstractAstParser implements ParserInterface
 
 		const callNodes = this._findCallNodes();
 		callNodes.forEach(callNode => {
-			const keys: string[] = this._getCallArgStrings(callNode);
+			const keys: any = this._getCallArgStrings(callNode);
 			if (keys && keys.length) {
 				collection = collection.addKeys(keys);
 			}
@@ -48,7 +48,6 @@ export class FunctionParser extends AbstractAstParser implements ParserInterface
 				}
 
 				const identifier = (callNode.getChildAt(0) as ts.Identifier).text;
-				console.log(identifier);
 				if (identifier !== this._functionIdentifier) {
 					return false;
 				}
