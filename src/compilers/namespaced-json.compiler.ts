@@ -23,8 +23,16 @@ export class NamespacedJsonCompiler implements CompilerInterface {
 	}
 
 	public parse(contents: string): TranslationCollection {
-		const values: {} = flat.flatten(JSON.parse(contents));
-		return new TranslationCollection(values);
+
+		//this._out(chalk.gray('\n************* Parsing File *************\n'));
+		//console.log(contents);
+
+		//const values: {} = flat.flatten(JSON.parse(contents));
+		//console.log(values);
+		return new TranslationCollection(JSON.parse(contents));
 	}
 
+	protected _out(...args: any[]): void {
+		console.log.apply(this, arguments);
+	}
 }

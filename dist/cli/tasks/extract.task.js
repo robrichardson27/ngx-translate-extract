@@ -29,6 +29,9 @@ var ExtractTask = (function () {
         }
         var collection = this._extract();
         this._out(chalk.green('Extracted %d strings\n'), collection.count());
+        this._out(chalk.gray('\n==================================================\n'));
+        console.log(collection);
+        this._out(chalk.gray('\n==================================================\n'));
         console.log(collection);
         this._save(collection);
     };
@@ -66,19 +69,22 @@ var ExtractTask = (function () {
                 filename = path.basename(normalizedOutput);
             }
             var outputPath = path.join(dir, filename);
-            var processedCollection = collection;
+            var processedCollection = new translation_collection_1.TranslationCollection(collection.values);
             _this._out(chalk.bold('\nSaving: %s'), outputPath);
             if (fs.existsSync(outputPath) && !_this._options.replace) {
                 var existingCollection = _this._compiler.parse(fs.readFileSync(outputPath, 'utf-8'));
-                console.log('### EXISITING COLLECTION ###');
-                console.log(existingCollection);
                 if (!existingCollection.isEmpty()) {
-                    processedCollection = processedCollection.union(existingCollection);
+                    existingCollection.merge(processedCollection);
+                    processedCollection = existingCollection;
+                    _this._out(chalk.gray('\n************* Processed Collection *************\n'));
+                    console.log(processedCollection);
                     _this._out(chalk.dim('- merged with %d existing strings'), existingCollection.count());
                 }
                 if (_this._options.clean) {
                     var collectionCount = processedCollection.count();
+                    _this._out(chalk.gray('\n************* Cleaned Collection *************\n'));
                     processedCollection = processedCollection.intersect(collection);
+                    console.log(processedCollection);
                     var removeCount = collectionCount - processedCollection.count();
                     if (removeCount > 0) {
                         _this._out(chalk.dim('- removed %d obsolete strings'), removeCount);

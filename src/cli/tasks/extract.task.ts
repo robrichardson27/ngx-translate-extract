@@ -44,7 +44,12 @@ export class ExtractTask implements TaskInterface {
 
 		const collection = this._extract();
 		this._out(chalk.green('Extracted %d strings\n'), collection.count());
+		this._out(chalk.gray('\n==================================================\n'));
 		console.log(collection);
+		this._out(chalk.gray('\n==================================================\n'));
+		//collection.flattenValues();
+		console.log(collection);
+
 		this._save(collection);
 	}
 
@@ -94,22 +99,34 @@ export class ExtractTask implements TaskInterface {
 			}
 
 			const outputPath: string = path.join(dir, filename);
-			let processedCollection: TranslationCollection = collection;
-
+			let processedCollection: TranslationCollection = new TranslationCollection(collection.values);
 			this._out(chalk.bold('\nSaving: %s'), outputPath);
 
 			if (fs.existsSync(outputPath) && !this._options.replace) {
+
 				const existingCollection: TranslationCollection = this._compiler.parse(fs.readFileSync(outputPath, 'utf-8'));
-				console.log('### EXISITING COLLECTION ###');
-				console.log(existingCollection);
+				//this._out(chalk.gray('\n************* Exisiting Collection *************\n'));
+				//console.log(existingCollection);
+
 				if (!existingCollection.isEmpty()) {
-					processedCollection = processedCollection.union(existingCollection);
+					existingCollection.merge(processedCollection);
+					processedCollection = existingCollection;
+					//processedCollection.merge(existingCollection);
+
+					this._out(chalk.gray('\n************* Processed Collection *************\n'));
+					console.log(processedCollection);
+
 					this._out(chalk.dim('- merged with %d existing strings'), existingCollection.count());
 				}
 
 				if (this._options.clean) {
 					const collectionCount = processedCollection.count();
+
+					this._out(chalk.gray('\n************* Cleaned Collection *************\n'));
+					//console.log(collection);
+
 					processedCollection = processedCollection.intersect(collection);
+					console.log(processedCollection);
 					const removeCount = collectionCount - processedCollection.count();
 					if (removeCount > 0) {
 						this._out(chalk.dim('- removed %d obsolete strings'), removeCount);

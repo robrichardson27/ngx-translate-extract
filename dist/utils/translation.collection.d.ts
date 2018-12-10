@@ -2,6 +2,8 @@ export interface TranslationType {
     [key: string]: I18nDef | string;
 }
 export interface I18nDef {
+    source: string;
+    target: string;
     value: string;
     id: string;
     meaning: string;
@@ -24,6 +26,7 @@ export declare class TranslationCollection {
     count(): number;
     isEmpty(): boolean;
     sort(compareFn?: (a: string, b: string) => number): TranslationCollection;
-    private _isObject(item);
-    private _mergeDeep(target, ...sources);
+    flattenValues(): void;
+    merge(existingCollection: TranslationCollection): void;
+    protected _out(...args: any[]): void;
 }

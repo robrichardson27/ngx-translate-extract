@@ -1,4 +1,7 @@
 //TODO: Expand interface to include id, description and meaning to JSON output
+import * as flat from 'flat';
+import * as chalk from 'chalk';
+
 export interface TranslationType {
 	[key: string]: I18nDef | string
 }
@@ -62,9 +65,7 @@ export class TranslationCollection {
 	}
 
 	public union(collection: TranslationCollection): TranslationCollection {
-		//console.log(collection.values);
-		//console.log(this.values);
-		return new TranslationCollection(this._mergeDeep({}, this.values, collection.values));
+		return new TranslationCollection(Object.assign({}, this.values, collection.values));
 	}
 
 	public intersect(collection: TranslationCollection): TranslationCollection {
@@ -106,44 +107,86 @@ export class TranslationCollection {
 		return new TranslationCollection(values);
 	}
 
-	/**
-	 * Simple object check.
-	 * @param item
-	 * @returns {boolean}
-	 */
-	private _isObject(item: any): any {
-		return (item && typeof item === 'object' && !Array.isArray(item));
+	public flattenValues() {
+		this.values = flat.flatten(this.values);
 	}
 
-	/**
-	 * Deep merge two objects.
-	 * target = extracted collection
-	 * ...sources = existing collection
-	 */
-	private _mergeDeep(target: any, ...sources: any[]): any {
-		if (!sources.length) {
-			return target;
+	// public deepMerge(collection: TranslationCollection): TranslationCollection {
+	// 	this._out(chalk.gray('\n----- Existing Collection -----\n'));
+	// 	console.log(collection.values);
+	// 	const values = this.values;
+	// 	this._out(chalk.gray('\n----- This Collection -----\n'));
+	// 	console.log(values);
+	//
+	// 	return this.merge(values, collection.values);
+	// }
+
+	// Merge a `source` object to a `target` recursively
+	public merge(existingCollection: TranslationCollection): void {
+		this._out(chalk.gray('\n//////////////////////////////////////\n'));
+
+		//console.log('## TARGET', target);
+		//console.log('## SOURCE', source);
+
+		// Iterate through `source` properties and if an `Object` set property to merge of `target` and `source` properties
+		for (let key of Object.keys(this.values)) {
+
+
+			console.log(key);
+			let t = flat.unflatten(this.values[key], {
+				object: true
+			});
+			console.log('targetCollection item: ', t);
+			let s: I18nDef = flat.unflatten(existingCollection.values[key], {
+				object: true
+			});
+			if (Object.keys(t) === 'value')
+			console.log('sourceCollection item: ', s);
+
+		//	this.values[key] = existingCollection.values[key];
+			//if (item.value )
+			//let tObj = target
+
+			//if (key === 'target') {
+				//uflatten target key, unflatten source key
+				//console.log('source: ', source[key]);
+				//console.log('target: ', target[key]);
+
+			//}
+			//     if (source[key] === target[key]) {
+			//         console.log('## KEY: ', key);
+			//         //target['target'] = source['target'];
+			//         console.log(source['target']);
+			//         console.log(source);
+			//         //return source;
+			//     }
+			// } else {
+			//console.log('## TARGET: ', target);
+			//console.log('## SOURCE: ', source);
+			// 	if (source[key] instanceof Object && key in target) {
+			//
+			// 		//console.log('## TARGET: ', target);
+			// 		//console.log('## SOURCE: ', source);
+			// 		Object.assign(source[key], this.merge(target[key], source[key]));
+			// 	}
+			// }
+			// }
 		}
-		const source = sources.shift();
+		this._out(chalk.gray('\n//////////////// target ///////////////\n'));
+		console.log(this.values);
+		this._out(chalk.gray('\n///////////////// source ///////////////\n'));
+		console.log(existingCollection);
+		// Join `target` and modified `source`
 
-		if (this._isObject(target) && this._isObject(source)) {
-			for (const key in source) {
-				if (this._isObject(source[key])) {
-					console.log('## TARGET KEY: ', target[key]);
+		this._out(chalk.gray('\n//////////////////////////////////////\n'));
+		let c = Object.assign( this.values, existingCollection.values);
+		console.log(c);
 
-					if (!target[key]) {
-						//console.log('key: ', key, ' | source[key]: ', source[key], ' | target[key]: ', target[key]);
-						Object.assign(target, { [key]: {} });
-					}
-					this._mergeDeep(target[key], source[key]);
-				} else {
-					//console.log('key: ', key, ' | source[key]: ', source[key], ' | target[key]: ', target[key]);
-					// if (target[key] !== source[key])
-					Object.assign(target, { [key]: source[key] });
-				}
-			}
-		}
+		//this.values = c;
+		//return new TranslationCollection(c);
+	}
 
-		return this._mergeDeep(target, ...sources);
+	protected _out(...args: any[]): void {
+		console.log.apply(this, arguments);
 	}
 }

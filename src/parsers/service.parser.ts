@@ -127,7 +127,7 @@ export class ServiceParser extends AbstractAstParser implements ParserInterface 
 				if (!methodAccess || methodAccess.kind !== ts.SyntaxKind.PropertyAccessExpression) {
 					return false;
 				}
-				if (!methodAccess.name || (methodAccess.name.text !== 'i18n')) {
+				if (!methodAccess.name || (methodAccess.name.text !== 'stream')) {
 					return false;
 				}
 

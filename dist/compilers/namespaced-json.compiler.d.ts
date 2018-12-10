@@ -6,4 +6,5 @@ export declare class NamespacedJsonCompiler implements CompilerInterface {
     constructor(options?: any);
     compile(collection: TranslationCollection): string;
     parse(contents: string): TranslationCollection;
+    protected _out(...args: any[]): void;
 }

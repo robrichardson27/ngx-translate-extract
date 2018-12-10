@@ -17,8 +17,14 @@ var NamespacedJsonCompiler = (function () {
         return JSON.stringify(values, null, this.indentation);
     };
     NamespacedJsonCompiler.prototype.parse = function (contents) {
-        var values = flat.flatten(JSON.parse(contents));
-        return new translation_collection_1.TranslationCollection(values);
+        return new translation_collection_1.TranslationCollection(JSON.parse(contents));
+    };
+    NamespacedJsonCompiler.prototype._out = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        console.log.apply(this, arguments);
     };
     return NamespacedJsonCompiler;
 }());

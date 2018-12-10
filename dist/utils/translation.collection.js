@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var flat = require("flat");
+var chalk = require("chalk");
 var TranslationCollection = (function () {
     function TranslationCollection(values) {
         if (values === void 0) { values = {}; }
@@ -43,7 +45,7 @@ var TranslationCollection = (function () {
         return new TranslationCollection(values);
     };
     TranslationCollection.prototype.union = function (collection) {
-        return new TranslationCollection(this._mergeDeep({}, this.values, collection.values));
+        return new TranslationCollection(Object.assign({}, this.values, collection.values));
     };
     TranslationCollection.prototype.intersect = function (collection) {
         var values = {};
@@ -76,34 +78,37 @@ var TranslationCollection = (function () {
         });
         return new TranslationCollection(values);
     };
-    TranslationCollection.prototype._isObject = function (item) {
-        return (item && typeof item === 'object' && !Array.isArray(item));
+    TranslationCollection.prototype.flattenValues = function () {
+        this.values = flat.flatten(this.values);
     };
-    TranslationCollection.prototype._mergeDeep = function (target) {
-        var sources = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            sources[_i - 1] = arguments[_i];
+    TranslationCollection.prototype.merge = function (existingCollection) {
+        this._out(chalk.gray('\n//////////////////////////////////////\n'));
+        for (var _i = 0, _a = Object.keys(this.values); _i < _a.length; _i++) {
+            var key = _a[_i];
+            console.log(key);
+            var t = flat.unflatten(this.values[key], {
+                object: true
+            });
+            console.log('targetCollection item: ', t);
+            var s = flat.unflatten(existingCollection.values[key], {
+                object: true
+            });
+            console.log('sourceCollection item: ', s);
         }
-        if (!sources.length) {
-            return target;
+        this._out(chalk.gray('\n//////////////// target ///////////////\n'));
+        console.log(this.values);
+        this._out(chalk.gray('\n///////////////// source ///////////////\n'));
+        console.log(existingCollection);
+        this._out(chalk.gray('\n//////////////////////////////////////\n'));
+        var c = Object.assign(this.values, existingCollection.values);
+        console.log(c);
+    };
+    TranslationCollection.prototype._out = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
         }
-        var source = sources.shift();
-        if (this._isObject(target) && this._isObject(source)) {
-            for (var key in source) {
-                if (this._isObject(source[key])) {
-                    console.log('## TARGET KEY: ', target[key]);
-                    if (!target[key]) {
-                        Object.assign(target, (_a = {}, _a[key] = {}, _a));
-                    }
-                    this._mergeDeep(target[key], source[key]);
-                }
-                else {
-                    Object.assign(target, (_b = {}, _b[key] = source[key], _b));
-                }
-            }
-        }
-        return this._mergeDeep.apply(this, [target].concat(sources));
-        var _a, _b;
+        console.log.apply(this, arguments);
     };
     return TranslationCollection;
 }());
