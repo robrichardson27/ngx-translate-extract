@@ -1,9 +1,10 @@
 import { ExtractTask } from './tasks/extract.task';
 import { ParserInterface } from '../parsers/parser.interface';
-import { PipeParser } from '../parsers/pipe.parser';
-import { DirectiveParser } from '../parsers/directive.parser';
-import { ServiceParser } from '../parsers/service.parser';
-import { FunctionParser } from '../parsers/function.parser';
+//import { PipeParser } from '../parsers/pipe.parser';
+//import { DirectiveParser } from '../parsers/directive.parser';
+//import { ServiceParser } from '../parsers/service.parser';
+//import { FunctionParser } from '../parsers/function.parser';
+import { DecoratorParser } from '../parsers/decorator.parser';
 import { CompilerInterface } from '../compilers/compiler.interface';
 import { CompilerFactory } from '../compilers/compiler.factory';
 
@@ -104,15 +105,16 @@ const compiler: CompilerInterface = CompilerFactory.create(cli.format, {
 extract.setCompiler(compiler);
 
 const parsers: ParserInterface[] = [
-	new PipeParser(),
-	new DirectiveParser(),
-	new ServiceParser()
+	//new PipeParser(),
+	//new DirectiveParser(),
+	//new ServiceParser()
+	new DecoratorParser()
 ];
-if (cli.marker) {
-	parsers.push(new FunctionParser({
-		identifier: cli.marker
-	}));
-}
+// if (cli.marker) {
+// 	parsers.push(new FunctionParser({
+// 		identifier: cli.marker
+// 	}));
+// }
 extract.setParsers(parsers);
 
 extract.execute();

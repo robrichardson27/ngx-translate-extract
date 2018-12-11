@@ -27,8 +27,11 @@ export class ServiceParser extends AbstractAstParser implements ParserInterface 
 			callNodes.forEach(callNode => {
 				const keys: any = this._getCallArgStrings(callNode);
 				if (keys && keys.length) {
-					collection = collection.addKeys(keys);
+					console.log('WARNING: format translation as i18n object!');
+					//collection = collection.addKeys(keys); <-- not used
 				} else if (keys && keys as I18nDef) {
+					// Check for duplicates
+					collection.checkForDuplicateIds(keys);
 					// Add i18nDef object as Translation Type
 					collection = collection.addObjectKeys(keys);
 				}
@@ -71,7 +74,6 @@ export class ServiceParser extends AbstractAstParser implements ParserInterface 
 		});
 
 		if (result) {
-			//console.log('## RESULT: ', result);
 			return (result.name as ts.Identifier).text;
 		}
 	}
@@ -109,9 +111,6 @@ export class ServiceParser extends AbstractAstParser implements ParserInterface 
 				if (!propAccess) {
 					return false;
 				}
-				// console.log('## CALL NODE: ', callNode);
-				// console.log('## PROP ACCESS: ', propAccess);
-				// console.log('## PROP KIND: ', propAccess.kind);
 
 				if (!propAccess || propAccess.kind !== ts.SyntaxKind.PropertyAccessExpression) {
 					return false;
@@ -133,7 +132,6 @@ export class ServiceParser extends AbstractAstParser implements ParserInterface 
 
 				return true;
 			});
-		// console.log('## RETURN CALL NODES: ', 	callNodes);
 		return callNodes;
 	}
 

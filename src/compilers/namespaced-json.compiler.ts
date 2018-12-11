@@ -2,6 +2,7 @@ import { CompilerInterface } from './compiler.interface';
 import { TranslationCollection } from '../utils/translation.collection';
 
 import * as flat from 'flat';
+const I18DEF_PROPERTY_ID = 'id';
 
 export class NamespacedJsonCompiler implements CompilerInterface {
 
@@ -23,16 +24,33 @@ export class NamespacedJsonCompiler implements CompilerInterface {
 	}
 
 	public parse(contents: string): TranslationCollection {
-
-		//this._out(chalk.gray('\n************* Parsing File *************\n'));
-		//console.log(contents);
-
-		//const values: {} = flat.flatten(JSON.parse(contents));
-		//console.log(values);
-		return new TranslationCollection(JSON.parse(contents));
+		const values = this.flattenObject(JSON.parse(contents));
+		return new TranslationCollection(values);
 	}
 
-	protected _out(...args: any[]): void {
-		console.log.apply(this, arguments);
+	/**
+	 * Flatten name-space JSON down to i18nDef object structure.
+	 * @param ob
+	 */
+	private flattenObject(ob: any) {
+		let toReturn: any = {};
+
+		for (let i in ob) {
+			if (!ob.hasOwnProperty(i)) {
+				continue;
+			}
+			if ((typeof ob[i]) === 'object' && !ob[i].hasOwnProperty(I18DEF_PROPERTY_ID)) {
+				let flatObject = this.flattenObject(ob[i]);
+				for (let x in flatObject) {
+					if (!flatObject.hasOwnProperty(x)){
+						continue;
+					}
+					toReturn[i + '.' + x] = flatObject[x];
+				}
+			} else {
+				toReturn[i] = ob[i];
+			}
+		}
+		return toReturn;
 	}
 }

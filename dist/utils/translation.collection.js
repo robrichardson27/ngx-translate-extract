@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var flat = require("flat");
 var chalk = require("chalk");
 var TranslationCollection = (function () {
     function TranslationCollection(values) {
@@ -15,8 +14,7 @@ var TranslationCollection = (function () {
     };
     TranslationCollection.prototype.addKeys = function (keys) {
         var values = keys.reduce(function (results, key) {
-            results[key] = '';
-            console.log(results);
+            results[key] = null;
             return results;
         }, {});
         return new TranslationCollection(Object.assign({}, this.values, values));
@@ -78,30 +76,19 @@ var TranslationCollection = (function () {
         });
         return new TranslationCollection(values);
     };
-    TranslationCollection.prototype.flattenValues = function () {
-        this.values = flat.flatten(this.values);
-    };
     TranslationCollection.prototype.merge = function (existingCollection) {
-        this._out(chalk.gray('\n//////////////////////////////////////\n'));
+        existingCollection.values = this._update(existingCollection.values);
+        return new TranslationCollection(Object.assign({}, this.values, existingCollection.values));
+    };
+    TranslationCollection.prototype.checkForDuplicateIds = function (newValue) {
         for (var _i = 0, _a = Object.keys(this.values); _i < _a.length; _i++) {
             var key = _a[_i];
-            console.log(key);
-            var t = flat.unflatten(this.values[key], {
-                object: true
-            });
-            console.log('targetCollection item: ', t);
-            var s = flat.unflatten(existingCollection.values[key], {
-                object: true
-            });
-            console.log('sourceCollection item: ', s);
+            if (key === newValue.id) {
+                this._out(chalk.red('- ERROR: Duplicate IDs found in source. ID: %s'), key);
+                this._out(chalk.green('- Translation files have not been updated, goodbye.\n'));
+                process.exit(-1);
+            }
         }
-        this._out(chalk.gray('\n//////////////// target ///////////////\n'));
-        console.log(this.values);
-        this._out(chalk.gray('\n///////////////// source ///////////////\n'));
-        console.log(existingCollection);
-        this._out(chalk.gray('\n//////////////////////////////////////\n'));
-        var c = Object.assign(this.values, existingCollection.values);
-        console.log(c);
     };
     TranslationCollection.prototype._out = function () {
         var args = [];
@@ -109,6 +96,27 @@ var TranslationCollection = (function () {
             args[_i] = arguments[_i];
         }
         console.log.apply(this, arguments);
+    };
+    TranslationCollection.prototype._update = function (flattenedValues) {
+        for (var _i = 0, _a = Object.keys(this.values); _i < _a.length; _i++) {
+            var key = _a[_i];
+            if (flattenedValues.hasOwnProperty(key)) {
+                if (this.values[key].value !== flattenedValues[key].value) {
+                    this._out(chalk.yellow('- WARNING: Value changed for ID: %s, now missing a translation!'), this.values[key].id);
+                    flattenedValues[key].target = '';
+                    flattenedValues[key].value = this.values[key].value;
+                }
+                if (flattenedValues[key].description !== this.values[key].description) {
+                    this._out(chalk.dim('- description changed for ID: %s'), this.values[key].id);
+                    flattenedValues[key].description = this.values[key].description;
+                }
+                if (flattenedValues[key].meaning !== this.values[key].meaning) {
+                    this._out(chalk.dim('- meaning changed for ID: %s'), this.values[key].id);
+                    flattenedValues[key].meaning = this.values[key].meaning;
+                }
+            }
+        }
+        return flattenedValues;
     };
     return TranslationCollection;
 }());

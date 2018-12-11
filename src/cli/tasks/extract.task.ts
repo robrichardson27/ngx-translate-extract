@@ -44,11 +44,6 @@ export class ExtractTask implements TaskInterface {
 
 		const collection = this._extract();
 		this._out(chalk.green('Extracted %d strings\n'), collection.count());
-		this._out(chalk.gray('\n==================================================\n'));
-		console.log(collection);
-		this._out(chalk.gray('\n==================================================\n'));
-		//collection.flattenValues();
-		console.log(collection);
 
 		this._save(collection);
 	}
@@ -75,7 +70,15 @@ export class ExtractTask implements TaskInterface {
 				this._options.verbose && this._out(chalk.gray('- %s'), path);
 				const contents: string = fs.readFileSync(path, 'utf-8');
 				this._parsers.forEach((parser: ParserInterface) => {
-					collection = collection.union(parser.extract(contents, path));
+					const newCollection: TranslationCollection = parser.extract(contents, path);
+					// Cross check collection for duplicates and abort.
+					if (!collection.isEmpty()) {
+						newCollection.forEach((key, value) => {
+							collection.checkForDuplicateIds(value);
+						});
+					} else {
+						collection = collection.union(newCollection);
+					}
 				});
 			});
 		});
@@ -104,29 +107,19 @@ export class ExtractTask implements TaskInterface {
 
 			if (fs.existsSync(outputPath) && !this._options.replace) {
 
+				// Read existing JSON translation files.
 				const existingCollection: TranslationCollection = this._compiler.parse(fs.readFileSync(outputPath, 'utf-8'));
-				//this._out(chalk.gray('\n************* Exisiting Collection *************\n'));
-				//console.log(existingCollection);
 
+				// Merge with parsed collection.
 				if (!existingCollection.isEmpty()) {
-					existingCollection.merge(processedCollection);
-					processedCollection = existingCollection;
-					//processedCollection.merge(existingCollection);
-
-					this._out(chalk.gray('\n************* Processed Collection *************\n'));
-					console.log(processedCollection);
-
-					this._out(chalk.dim('- merged with %d existing strings'), existingCollection.count());
+					processedCollection = processedCollection.merge(existingCollection);
+					this._out(chalk.dim('\n- merged with %d existing strings'), existingCollection.count());
 				}
 
+				// Remove redundant values.
 				if (this._options.clean) {
 					const collectionCount = processedCollection.count();
-
-					this._out(chalk.gray('\n************* Cleaned Collection *************\n'));
-					//console.log(collection);
-
 					processedCollection = processedCollection.intersect(collection);
-					console.log(processedCollection);
 					const removeCount = collectionCount - processedCollection.count();
 					if (removeCount > 0) {
 						this._out(chalk.dim('- removed %d obsolete strings'), removeCount);

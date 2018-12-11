@@ -13,6 +13,7 @@ __export(require("./parsers/directive.parser"));
 __export(require("./parsers/pipe.parser"));
 __export(require("./parsers/service.parser"));
 __export(require("./parsers/function.parser"));
+__export(require("./parsers/decorator.parser"));
 __export(require("./compilers/compiler.factory"));
 __export(require("./compilers/json.compiler"));
 __export(require("./compilers/namespaced-json.compiler"));

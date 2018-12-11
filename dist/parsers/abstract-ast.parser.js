@@ -29,7 +29,6 @@ var AbstractAstParser = (function () {
                     }
                     else if (key === 'value') {
                         i18nDef_1.value = value;
-                        i18nDef_1.source = value;
                     }
                     else if (key === 'meaning') {
                         i18nDef_1.meaning = value;

@@ -1,10 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var extract_task_1 = require("./tasks/extract.task");
-var pipe_parser_1 = require("../parsers/pipe.parser");
-var directive_parser_1 = require("../parsers/directive.parser");
-var service_parser_1 = require("../parsers/service.parser");
-var function_parser_1 = require("../parsers/function.parser");
+var decorator_parser_1 = require("../parsers/decorator.parser");
 var compiler_factory_1 = require("../compilers/compiler.factory");
 var fs = require("fs");
 var yargs = require("yargs");
@@ -98,15 +95,8 @@ var compiler = compiler_factory_1.CompilerFactory.create(exports.cli.format, {
 });
 extract.setCompiler(compiler);
 var parsers = [
-    new pipe_parser_1.PipeParser(),
-    new directive_parser_1.DirectiveParser(),
-    new service_parser_1.ServiceParser()
+    new decorator_parser_1.DecoratorParser()
 ];
-if (exports.cli.marker) {
-    parsers.push(new function_parser_1.FunctionParser({
-        identifier: exports.cli.marker
-    }));
-}
 extract.setParsers(parsers);
 extract.execute();
 //# sourceMappingURL=cli.js.map

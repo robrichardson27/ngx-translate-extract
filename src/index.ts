@@ -12,6 +12,7 @@ export * from './parsers/directive.parser';
 export * from './parsers/pipe.parser';
 export * from './parsers/service.parser';
 export * from './parsers/function.parser';
+export * from './parsers/decorator.parser';
 
 export * from './compilers/compiler.interface';
 export * from './compilers/compiler.factory';

@@ -1,8 +1,7 @@
 export interface TranslationType {
-    [key: string]: I18nDef | string;
+    [key: string]: I18nDef;
 }
 export interface I18nDef {
-    source: string;
     target: string;
     value: string;
     id: string;
@@ -21,12 +20,13 @@ export declare class TranslationCollection {
     union(collection: TranslationCollection): TranslationCollection;
     intersect(collection: TranslationCollection): TranslationCollection;
     has(key: string): boolean;
-    get(key: string): I18nDef | string;
+    get(key: string): I18nDef;
     keys(): string[];
     count(): number;
     isEmpty(): boolean;
     sort(compareFn?: (a: string, b: string) => number): TranslationCollection;
-    flattenValues(): void;
-    merge(existingCollection: TranslationCollection): void;
+    merge(existingCollection: TranslationCollection): TranslationCollection;
+    checkForDuplicateIds(newValue: I18nDef): void;
     protected _out(...args: any[]): void;
+    protected _update(flattenedValues: TranslationType): TranslationType;
 }

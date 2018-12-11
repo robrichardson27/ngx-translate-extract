@@ -26,7 +26,6 @@ export abstract class AbstractAstParser {
 			case ts.SyntaxKind.ArrayLiteralExpression:
 				return (firstArg as ts.ArrayLiteralExpression).elements
 					.map((element: ts.StringLiteral) => element.text);
-				//TODO:@ Change to extract annotation @Translate
 			case ts.SyntaxKind.ObjectLiteralExpression:
 				// Extract i18nDef from typescript files
 				const i18nDef: I18nDef = <I18nDef> {};
@@ -37,7 +36,6 @@ export abstract class AbstractAstParser {
 						i18nDef.id = value;
 					} else if (key === 'value') {
 						i18nDef.value = value;
-						i18nDef.source = value;
 					} else if (key === 'meaning') {
 						i18nDef.meaning = value;
 					} else if (key === 'description') {

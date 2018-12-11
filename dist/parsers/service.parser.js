@@ -36,9 +36,10 @@ var ServiceParser = (function (_super) {
             callNodes.forEach(function (callNode) {
                 var keys = _this._getCallArgStrings(callNode);
                 if (keys && keys.length) {
-                    collection = collection.addKeys(keys);
+                    console.log('WARNING: format translation as i18n object!');
                 }
                 else if (keys && keys) {
+                    collection.checkForDuplicateIds(keys);
                     collection = collection.addObjectKeys(keys);
                 }
             });
