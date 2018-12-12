@@ -1,9 +1,11 @@
 import { ExtractTask } from './tasks/extract.task';
 import { ParserInterface } from '../parsers/parser.interface';
-//import { PipeParser } from '../parsers/pipe.parser';
-//import { DirectiveParser } from '../parsers/directive.parser';
-//import { ServiceParser } from '../parsers/service.parser';
-//import { FunctionParser } from '../parsers/function.parser';
+/* Not using the following parsers.
+import { PipeParser } from '../parsers/pipe.parser';
+import { DirectiveParser } from '../parsers/directive.parser';
+import { ServiceParser } from '../parsers/service.parser';
+import { FunctionParser } from '../parsers/function.parser';
+*/
 import { DecoratorParser } from '../parsers/decorator.parser';
 import { CompilerInterface } from '../compilers/compiler.interface';
 import { CompilerFactory } from '../compilers/compiler.factory';
@@ -38,6 +40,12 @@ export const cli = yargs
 		describe: 'Extract strings from the following file patterns',
 		type: 'array',
 		default: ['/**/*.html', '/**/*.ts']
+	})
+	.option('ignore', {
+		alias: 'ig',
+		describe: 'Ignore strings from the following file patterns',
+		type: 'array',
+		default: ['/**/*.spec.ts']
 	})
 	.option('output', {
 		alias: 'o',
@@ -96,7 +104,8 @@ const extract = new ExtractTask(cli.input, cli.output, {
 	replace: cli.replace,
 	sort: cli.sort,
 	clean: cli.clean,
-	patterns: cli.patterns
+	patterns: cli.patterns,
+	ignore: cli.ignore
 });
 
 const compiler: CompilerInterface = CompilerFactory.create(cli.format, {
@@ -105,16 +114,20 @@ const compiler: CompilerInterface = CompilerFactory.create(cli.format, {
 extract.setCompiler(compiler);
 
 const parsers: ParserInterface[] = [
-	//new PipeParser(),
-	//new DirectiveParser(),
-	//new ServiceParser()
+	/* Not using the following parsers.
+	new PipeParser(),
+	new DirectiveParser(),
+	new ServiceParser()
+	*/
 	new DecoratorParser()
 ];
-// if (cli.marker) {
-// 	parsers.push(new FunctionParser({
-// 		identifier: cli.marker
-// 	}));
-// }
+/* Not using function parser.
+if (cli.marker) {
+	parsers.push(new FunctionParser({
+		identifier: cli.marker
+	}));
+}
+*/
 extract.setParsers(parsers);
 
 extract.execute();

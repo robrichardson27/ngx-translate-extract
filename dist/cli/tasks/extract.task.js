@@ -15,7 +15,8 @@ var ExtractTask = (function () {
             sort: false,
             clean: false,
             patterns: [],
-            verbose: true
+            verbose: true,
+            ignore: []
         };
         this._parsers = [];
         this._options = Object.assign({}, this._options, options);
@@ -44,7 +45,7 @@ var ExtractTask = (function () {
         this._out(chalk.bold('Extracting strings...'));
         var collection = new translation_collection_1.TranslationCollection();
         this._input.forEach(function (dir) {
-            _this._readDir(dir, _this._options.patterns).forEach(function (path) {
+            _this._readDir(dir, _this._options.patterns, _this._options.ignore).forEach(function (path) {
                 _this._options.verbose && _this._out(chalk.gray('- %s'), path);
                 var contents = fs.readFileSync(path, 'utf-8');
                 _this._parsers.forEach(function (parser) {
@@ -54,9 +55,7 @@ var ExtractTask = (function () {
                             collection.checkForDuplicateIds(value);
                         });
                     }
-                    else {
-                        collection = collection.union(newCollection);
-                    }
+                    collection = collection.union(newCollection);
                 });
             });
         });
@@ -102,9 +101,9 @@ var ExtractTask = (function () {
             _this._out(chalk.green('Done!'));
         });
     };
-    ExtractTask.prototype._readDir = function (dir, patterns) {
+    ExtractTask.prototype._readDir = function (dir, patterns, ignore) {
         return patterns.reduce(function (results, pattern) {
-            return glob.sync(dir + pattern)
+            return glob.sync(dir + pattern, { ignore: ignore.map(function (i) { return dir + i; }) })
                 .filter(function (path) { return fs.statSync(path).isFile(); })
                 .concat(results);
         }, []);

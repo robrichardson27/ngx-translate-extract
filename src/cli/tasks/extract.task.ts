@@ -15,6 +15,7 @@ export interface ExtractTaskOptionsInterface {
 	clean?: boolean;
 	patterns?: string[];
 	verbose?: boolean;
+	ignore?: string[]
 }
 
 export class ExtractTask implements TaskInterface {
@@ -24,7 +25,8 @@ export class ExtractTask implements TaskInterface {
 		sort: false,
 		clean: false,
 		patterns: [],
-		verbose: true
+		verbose: true,
+		ignore: []
 	};
 
 	protected _parsers: ParserInterface[] = [];
@@ -66,7 +68,7 @@ export class ExtractTask implements TaskInterface {
 
 		let collection: TranslationCollection = new TranslationCollection();
 		this._input.forEach(dir => {
-			this._readDir(dir, this._options.patterns).forEach(path => {
+			this._readDir(dir, this._options.patterns, this._options.ignore).forEach(path => {
 				this._options.verbose && this._out(chalk.gray('- %s'), path);
 				const contents: string = fs.readFileSync(path, 'utf-8');
 				this._parsers.forEach((parser: ParserInterface) => {
@@ -76,9 +78,8 @@ export class ExtractTask implements TaskInterface {
 						newCollection.forEach((key, value) => {
 							collection.checkForDuplicateIds(value);
 						});
-					} else {
-						collection = collection.union(newCollection);
 					}
+					collection = collection.union(newCollection);
 				});
 			});
 		});
@@ -145,9 +146,9 @@ export class ExtractTask implements TaskInterface {
 	/**
 	 * Get all files in dir matching patterns
 	 */
-	protected _readDir(dir: string, patterns: string[]): string[] {
+	protected _readDir(dir: string, patterns: string[], ignore: string[]): string[] {
 		return patterns.reduce((results, pattern) => {
-			return glob.sync(dir + pattern)
+			return glob.sync(dir + pattern, { ignore: ignore.map(i => dir + i) })
 				.filter(path => fs.statSync(path).isFile())
 				.concat(results);
 		}, []);

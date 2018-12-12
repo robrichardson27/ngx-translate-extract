@@ -32,6 +32,12 @@ exports.cli = yargs
     type: 'array',
     default: ['/**/*.html', '/**/*.ts']
 })
+    .option('ignore', {
+    alias: 'ig',
+    describe: 'Ignore strings from the following file patterns',
+    type: 'array',
+    default: ['/**/*.spec.ts']
+})
     .option('output', {
     alias: 'o',
     describe: 'Paths where you would like to save extracted strings. You can use path expansion, glob patterns and multiple paths',
@@ -88,7 +94,8 @@ var extract = new extract_task_1.ExtractTask(exports.cli.input, exports.cli.outp
     replace: exports.cli.replace,
     sort: exports.cli.sort,
     clean: exports.cli.clean,
-    patterns: exports.cli.patterns
+    patterns: exports.cli.patterns,
+    ignore: exports.cli.ignore
 });
 var compiler = compiler_factory_1.CompilerFactory.create(exports.cli.format, {
     indentation: exports.cli.formatIndentation
