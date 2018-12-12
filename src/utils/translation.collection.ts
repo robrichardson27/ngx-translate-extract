@@ -4,12 +4,18 @@ export interface TranslationType {
 	[key: string]: I18nDef
 }
 
+export interface I18nLocation {
+	sourcefile: string,
+	linenumber: number
+}
+
 export interface I18nDef {
 	target: string,
 	value: string,
 	id: string,
 	meaning: string,
-	description: string
+	description: string,
+	location: I18nLocation
 }
 
 export class TranslationCollection {
@@ -109,37 +115,49 @@ export class TranslationCollection {
 	 * Check parsed collection does not have duplicate ids so that translations cannot be overridden.
 	 */
 	public checkForDuplicateIds(newValue: I18nDef) {
-		for (let key of Object.keys(this.values)) {
+		this.forEach((key, value) => {
 			if (key === newValue.id) {
-				this._out(chalk.red('- ERROR: Duplicate IDs found in source. ID: %s'), key);
+				this._out(chalk.red('- ERROR: Duplicate IDs found in source.'));
+				this._printSource(key, value);
 				this._out(chalk.green('- Translation files have not been updated, goodbye.\n'));
 				process.exit(-1);
 			}
-		}
+		});
+	}
+
+	protected _update(existingValues: TranslationType): TranslationType {
+		this.forEach((key, value) => {
+			if (existingValues.hasOwnProperty(key)) {
+				const existingValue = existingValues[key];
+
+				if (value.value !== existingValue.value) {
+					this._out(chalk.yellow('- WARNING: Value has changed for a translated string, now missing a translation.'));
+					this._printSource(key, value);
+					existingValue.target = '';
+					existingValue.value = value.value;
+				}
+				if (existingValue.description !== value.description) {
+					this._out(chalk.dim('- INFORMATION: Description has changed for a translated string.'));
+					this._printSource(key, value);
+					existingValue.description = value.description;
+				}
+				if (existingValue.meaning !== value.meaning) {
+					this._out(chalk.dim('- INFORMATION: Meaning has changed for a translated string.'));
+					this._printSource(key, value);
+					existingValue.meaning = value.meaning;
+				}
+
+				existingValues[key] = existingValue;
+			}
+		});
+		return existingValues;
+	}
+
+	protected _printSource(key: string, value: I18nDef) {
+		this._out(chalk.bold('  source: %s line: %d id: %s'), value.location.sourcefile, value.location.linenumber, key);
 	}
 
 	protected _out(...args: any[]): void {
 		console.log.apply(this, arguments);
-	}
-
-	protected _update(flattenedValues: TranslationType): TranslationType {
-		for (let key of Object.keys(this.values)) {
-			if (flattenedValues.hasOwnProperty(key)) {
-				if (this.values[key].value !== flattenedValues[key].value) {
-					this._out(chalk.yellow('- WARNING: Value changed for ID: %s, now missing a translation!'), this.values[key].id);
-					flattenedValues[key].target = '';
-					flattenedValues[key].value = this.values[key].value;
-				}
-				if (flattenedValues[key].description !== this.values[key].description) {
-					this._out(chalk.dim('- description changed for ID: %s'), this.values[key].id);
-					flattenedValues[key].description = this.values[key].description;
-				}
-				if (flattenedValues[key].meaning !== this.values[key].meaning) {
-					this._out(chalk.dim('- meaning changed for ID: %s'), this.values[key].id);
-					flattenedValues[key].meaning = this.values[key].meaning;
-				}
-			}
-		}
-		return flattenedValues;
 	}
 }

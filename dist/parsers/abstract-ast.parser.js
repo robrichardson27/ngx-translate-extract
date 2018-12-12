@@ -13,12 +13,6 @@ var AbstractAstParser = (function () {
         }
         var firstArg = callNode.arguments[0];
         switch (firstArg.kind) {
-            case ts.SyntaxKind.StringLiteral:
-            case ts.SyntaxKind.FirstTemplateToken:
-                return [firstArg.text];
-            case ts.SyntaxKind.ArrayLiteralExpression:
-                return firstArg.elements
-                    .map(function (element) { return element.text; });
             case ts.SyntaxKind.ObjectLiteralExpression:
                 var i18nDef_1 = {};
                 firstArg.forEachChild(function (node) {
@@ -66,6 +60,10 @@ var AbstractAstParser = (function () {
         console.log(new Array(depth + 1).join('----'), "[" + node.kind + "]", this._syntaxKindToName(node.kind), "[pos: " + node.pos + "-" + node.end + "]", ':\t\t\t', node.getFullText(sourceFile).trim());
         depth++;
         node.getChildren(sourceFile).forEach(function (childNode) { return _this._printAllChildren(sourceFile, childNode, depth); });
+    };
+    AbstractAstParser.prototype._getSourceFileLocation = function (node) {
+        var line = this._sourceFile.getLineAndCharacterOfPosition(node.pos).line;
+        return { sourcefile: this._sourceFile.fileName, linenumber: line + 1 };
     };
     return AbstractAstParser;
 }());

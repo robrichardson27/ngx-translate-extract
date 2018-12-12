@@ -16,10 +16,12 @@ export class DecoratorParser extends AbstractAstParser implements ParserInterfac
 
 			const callNodes = this._findCallNodes(decoratorNode);
 			callNodes.forEach(callNode => {
-				const values: any = this._getCallArgStrings(callNode);
+				const values: I18nDef = this._getCallArgStrings(callNode);
 				if (values && values as I18nDef) {
 					// Check for duplicates
 					collection.checkForDuplicateIds(values);
+					// Get source file location of translation
+					values.location = this._getSourceFileLocation(callNode);
 					// Add i18nDef object as Translation Type
 					collection = collection.addObjectKeys(values);
 				}

@@ -1,5 +1,5 @@
 import * as ts from 'typescript';
-import {I18nDef} from '../utils/translation.collection';
+import { I18nDef, I18nLocation } from '../utils/translation.collection';
 
 
 export abstract class AbstractAstParser {
@@ -13,19 +13,21 @@ export abstract class AbstractAstParser {
 	/**
 	 * Get strings from function call's first argument, return as key value array for i18nDef
 	 */
-	protected _getCallArgStrings(callNode: ts.CallExpression): string[] | I18nDef {
+	protected _getCallArgStrings(callNode: ts.CallExpression): I18nDef {
 		if (!callNode.arguments.length) {
 			return;
 		}
 
 		const firstArg = callNode.arguments[0];
 		switch (firstArg.kind) {
+			/* String literals no longer extracted.
 			case ts.SyntaxKind.StringLiteral:
 			case ts.SyntaxKind.FirstTemplateToken:
 				return [(firstArg as ts.StringLiteral).text];
 			case ts.SyntaxKind.ArrayLiteralExpression:
 				return (firstArg as ts.ArrayLiteralExpression).elements
 					.map((element: ts.StringLiteral) => element.text);
+			*/
 			case ts.SyntaxKind.ObjectLiteralExpression:
 				// Extract i18nDef from typescript files
 				const i18nDef: I18nDef = <I18nDef> {};
@@ -82,6 +84,11 @@ export abstract class AbstractAstParser {
 
 		depth++;
 		node.getChildren(sourceFile).forEach(childNode => this._printAllChildren(sourceFile, childNode, depth));
+	}
+
+	protected _getSourceFileLocation(node: ts.Node): I18nLocation {
+		const { line } = this._sourceFile.getLineAndCharacterOfPosition(node.pos);
+		return { sourcefile: this._sourceFile.fileName, linenumber: line + 1 };
 	}
 
 }

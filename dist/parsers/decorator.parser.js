@@ -29,6 +29,7 @@ var DecoratorParser = (function (_super) {
                 var values = _this._getCallArgStrings(callNode);
                 if (values && values) {
                     collection.checkForDuplicateIds(values);
+                    values.location = _this._getSourceFileLocation(callNode);
                     collection = collection.addObjectKeys(values);
                 }
             });

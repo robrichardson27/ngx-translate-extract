@@ -81,14 +81,44 @@ var TranslationCollection = (function () {
         return new TranslationCollection(Object.assign({}, this.values, existingCollection.values));
     };
     TranslationCollection.prototype.checkForDuplicateIds = function (newValue) {
-        for (var _i = 0, _a = Object.keys(this.values); _i < _a.length; _i++) {
-            var key = _a[_i];
+        var _this = this;
+        this.forEach(function (key, value) {
             if (key === newValue.id) {
-                this._out(chalk.red('- ERROR: Duplicate IDs found in source. ID: %s'), key);
-                this._out(chalk.green('- Translation files have not been updated, goodbye.\n'));
+                _this._out(chalk.red('- ERROR: Duplicate IDs found in source.'));
+                _this._printSource(key, value);
+                _this._out(chalk.green('- Translation files have not been updated, goodbye.\n'));
                 process.exit(-1);
             }
-        }
+        });
+    };
+    TranslationCollection.prototype._update = function (existingValues) {
+        var _this = this;
+        this.forEach(function (key, value) {
+            if (existingValues.hasOwnProperty(key)) {
+                var existingValue = existingValues[key];
+                if (value.value !== existingValue.value) {
+                    _this._out(chalk.yellow('- WARNING: Value has changed for a translated string, now missing a translation.'));
+                    _this._printSource(key, value);
+                    existingValue.target = '';
+                    existingValue.value = value.value;
+                }
+                if (existingValue.description !== value.description) {
+                    _this._out(chalk.dim('- INFORMATION: Description has changed for a translated string.'));
+                    _this._printSource(key, value);
+                    existingValue.description = value.description;
+                }
+                if (existingValue.meaning !== value.meaning) {
+                    _this._out(chalk.dim('- INFORMATION: Meaning has changed for a translated string.'));
+                    _this._printSource(key, value);
+                    existingValue.meaning = value.meaning;
+                }
+                existingValues[key] = existingValue;
+            }
+        });
+        return existingValues;
+    };
+    TranslationCollection.prototype._printSource = function (key, value) {
+        this._out(chalk.bold('  source: %s line: %d id: %s'), value.location.sourcefile, value.location.linenumber, key);
     };
     TranslationCollection.prototype._out = function () {
         var args = [];
@@ -96,27 +126,6 @@ var TranslationCollection = (function () {
             args[_i] = arguments[_i];
         }
         console.log.apply(this, arguments);
-    };
-    TranslationCollection.prototype._update = function (flattenedValues) {
-        for (var _i = 0, _a = Object.keys(this.values); _i < _a.length; _i++) {
-            var key = _a[_i];
-            if (flattenedValues.hasOwnProperty(key)) {
-                if (this.values[key].value !== flattenedValues[key].value) {
-                    this._out(chalk.yellow('- WARNING: Value changed for ID: %s, now missing a translation!'), this.values[key].id);
-                    flattenedValues[key].target = '';
-                    flattenedValues[key].value = this.values[key].value;
-                }
-                if (flattenedValues[key].description !== this.values[key].description) {
-                    this._out(chalk.dim('- description changed for ID: %s'), this.values[key].id);
-                    flattenedValues[key].description = this.values[key].description;
-                }
-                if (flattenedValues[key].meaning !== this.values[key].meaning) {
-                    this._out(chalk.dim('- meaning changed for ID: %s'), this.values[key].id);
-                    flattenedValues[key].meaning = this.values[key].meaning;
-                }
-            }
-        }
-        return flattenedValues;
     };
     return TranslationCollection;
 }());
