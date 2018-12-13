@@ -33,6 +33,6 @@ export declare class TranslationCollection {
     merge(existingCollection: TranslationCollection): TranslationCollection;
     checkForDuplicateIds(newValue: I18nDef): void;
     protected _update(existingValues: TranslationType): TranslationType;
-    protected _printSource(key: string, value: I18nDef): void;
+    protected _printSource(key: string, value: I18nDef): string;
     protected _out(...args: any[]): void;
 }

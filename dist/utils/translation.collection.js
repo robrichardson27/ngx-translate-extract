@@ -84,8 +84,7 @@ var TranslationCollection = (function () {
         var _this = this;
         this.forEach(function (key, value) {
             if (key === newValue.id) {
-                _this._out(chalk.red('- ERROR: Duplicate IDs found in source.'));
-                _this._printSource(key, value);
+                _this._out(chalk.red('- ERROR %s and %s Duplicate IDs found in source.'), _this._printSource(key, value), _this._printSource(key, newValue));
                 _this._out(chalk.green('- Translation files have not been updated, goodbye.\n'));
                 process.exit(-1);
             }
@@ -97,19 +96,16 @@ var TranslationCollection = (function () {
             if (existingValues.hasOwnProperty(key)) {
                 var existingValue = existingValues[key];
                 if (value.value !== existingValue.value) {
-                    _this._out(chalk.yellow('- WARNING: Value has changed for a translated string, now missing a translation.'));
-                    _this._printSource(key, value);
+                    _this._out(chalk.yellow('- WARNING %s Value has changed for a translated string, now missing a translation.'), _this._printSource(key, value));
                     existingValue.target = '';
                     existingValue.value = value.value;
                 }
                 if (existingValue.description !== value.description) {
-                    _this._out(chalk.dim('- INFORMATION: Description has changed for a translated string.'));
-                    _this._printSource(key, value);
+                    _this._out(chalk.dim('- INFORMATION %s Description has changed for a translated string.'), _this._printSource(key, value));
                     existingValue.description = value.description;
                 }
                 if (existingValue.meaning !== value.meaning) {
-                    _this._out(chalk.dim('- INFORMATION: Meaning has changed for a translated string.'));
-                    _this._printSource(key, value);
+                    _this._out(chalk.dim('- INFORMATION %s Meaning has changed for a translated string.'), _this._printSource(key, value));
                     existingValue.meaning = value.meaning;
                 }
                 existingValues[key] = existingValue;
@@ -118,7 +114,7 @@ var TranslationCollection = (function () {
         return existingValues;
     };
     TranslationCollection.prototype._printSource = function (key, value) {
-        this._out(chalk.bold('  source: %s line: %d id: %s'), value.location.sourcefile, value.location.linenumber, key);
+        return "in " + value.location.sourcefile + "(" + value.location.linenumber + ", id: " + key + "):";
     };
     TranslationCollection.prototype._out = function () {
         var args = [];

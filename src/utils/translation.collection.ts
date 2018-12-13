@@ -117,8 +117,7 @@ export class TranslationCollection {
 	public checkForDuplicateIds(newValue: I18nDef) {
 		this.forEach((key, value) => {
 			if (key === newValue.id) {
-				this._out(chalk.red('- ERROR: Duplicate IDs found in source.'));
-				this._printSource(key, value);
+				this._out(chalk.red('- ERROR %s and %s Duplicate IDs found in source.'), this._printSource(key, value), this._printSource(key, newValue));
 				this._out(chalk.green('- Translation files have not been updated, goodbye.\n'));
 				process.exit(-1);
 			}
@@ -131,19 +130,16 @@ export class TranslationCollection {
 				const existingValue = existingValues[key];
 
 				if (value.value !== existingValue.value) {
-					this._out(chalk.yellow('- WARNING: Value has changed for a translated string, now missing a translation.'));
-					this._printSource(key, value);
+					this._out(chalk.yellow('- WARNING %s Value has changed for a translated string, now missing a translation.'), this._printSource(key, value));
 					existingValue.target = '';
 					existingValue.value = value.value;
 				}
 				if (existingValue.description !== value.description) {
-					this._out(chalk.dim('- INFORMATION: Description has changed for a translated string.'));
-					this._printSource(key, value);
+					this._out(chalk.dim('- INFORMATION %s Description has changed for a translated string.'), this._printSource(key, value));
 					existingValue.description = value.description;
 				}
 				if (existingValue.meaning !== value.meaning) {
-					this._out(chalk.dim('- INFORMATION: Meaning has changed for a translated string.'));
-					this._printSource(key, value);
+					this._out(chalk.dim('- INFORMATION %s Meaning has changed for a translated string.'), this._printSource(key, value));
 					existingValue.meaning = value.meaning;
 				}
 
@@ -153,8 +149,8 @@ export class TranslationCollection {
 		return existingValues;
 	}
 
-	protected _printSource(key: string, value: I18nDef) {
-		this._out(chalk.bold('  source: %s line: %d id: %s'), value.location.sourcefile, value.location.linenumber, key);
+	protected _printSource(key: string, value: I18nDef): string {
+		return `in ${value.location.sourcefile}(${value.location.linenumber}, id: ${key}):`;
 	}
 
 	protected _out(...args: any[]): void {
