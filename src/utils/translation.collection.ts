@@ -117,7 +117,7 @@ export class TranslationCollection {
 	public checkForDuplicateIds(newValue: I18nDef) {
 		this.forEach((key, value) => {
 			if (key === newValue.id) {
-				this._out(chalk.red('- ERROR %s and %s Duplicate IDs found in source.'), this._printSource(key, value), this._printSource(key, newValue));
+				this._out(chalk.red('- ERROR %s Duplicate IDs found in source.'), this._printSource(key, value));
 				this._out(chalk.green('- Translation files have not been updated, goodbye.\n'));
 				process.exit(-1);
 			}
