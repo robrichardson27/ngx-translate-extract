@@ -83,7 +83,6 @@ var TranslationCollection = (function () {
     TranslationCollection.prototype.checkForDuplicateIds = function (newValue) {
         var _this = this;
         this.forEach(function (key, value) {
-            console.log(value);
             if (key === newValue.id) {
                 _this._out(chalk.red('- ERROR %s Duplicate IDs found in source.'), _this._printSource(key, value));
                 _this._out(chalk.green('- Translation files have not been updated, goodbye.\n'));
