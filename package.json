@@ -12,7 +12,8 @@
     "ngx-translate-extract": "bin/cli.js"
   },
   "scripts": {
-    "build": "npm run clean && tsc && cp dist -r ../ngx-translate-example/node_modules/@biesbjerg/ngx-translate-extract/",
+    "build": "npm run clean && tsc",
+    "build-demo": "npm run build && cp dist -r ../ae-form-framwork-demo-app/node_modules/@biesbjerg/ngx-translate-extract/",
     "watch": "npm run clean && tsc --watch",
     "clean": "rm -rf ./dist",
     "lint": "tslint --force './src/**/*.ts'",
